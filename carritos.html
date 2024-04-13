@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Racing Game</title>
+   <style>
+      body {
+         font-family: Arial, sans-serif;
+         display: flex;
+         background-color: #262626;
+         justify-content: center;
+         align-items: center;
+         height: auto;
+      }
+
+      .race-track {
+         width: 100vw;
+         display: flex;
+         flex-direction: row;
+         color: #4d4d4d;
+         background-color: #4d4d4d;
+
+         display: none;
+         border-top: solid 2px white;
+         border-bottom: solid 2px white;
+      }
+
+      .car {
+         font-size: 24px;
+         margin-bottom: 10px;
+      }
+
+      #menu {
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+      }
+
+      #menu button {
+         margin: 5px;
+         padding: 10px 20px;
+         font-size: 18px;
+         border: none;
+         border-radius: 5px;
+         background-color: #4CAF50;
+         color: white;
+         cursor: pointer;
+      }
+
+      #menu button:hover {
+         background-color: #45a049;
+      }
+
+      #jugadoresTitle {
+         font-size: 20px;
+         margin-bottom: 10px;
+      }
+
+      #jugadores {
+         font-size: 16px;
+         padding: 5px;
+      }
+
+      #cuentaAtras {
+         font-size: 100px;
+         margin-bottom: 10px;
+         color: goldenrod;
+      }
+
+      #cantidadJugadores {
+         font-size: 20px;
+         margin-bottom: 10px;
+         color: white;
+      }
+   </style>
+</head>
+
+<body>
+   <div id="menu">
+      <h1 id="jugadoresTitle">Elige el número de jugadores</h1>
+      <h1 id="cuentaAtras"></h1>
+      <select name="jugadores" id="jugadores">
+         <option value="1">1</option>
+         <option value="2">2</option>
+         <option value="3">3</option>
+         <option value="4">4</option>
+         <option value="5">5</option>
+         <option value="6">6</option>
+         <option value="7">7</option>
+         <option value="8">8</option>
+         <option value="9">9</option>
+         <option value="10">10</option>
+      </select>
+      <button id="empezar">Empezar</button>
+      <p id="cantidadJugadores"></p>
+      <button id="go" style="display: none;">GO!</button>
+   </div>
+   <div class="race-track" id="raceTrack">
+   </div>
+
+   <script>
+      let jugadores = document.getElementById('jugadores');
+      let raceTrack = document.getElementById('raceTrack');
+      let numeroJugadores = jugadores.value;
+
+      let empezar = document.getElementById('empezar');
+      empezar.addEventListener('click', () => {
+         numeroJugadores = jugadores.value;
+         jugadoresTitle.style.display = 'none';
+         jugadores.style.display = 'none';
+         raceTrack.style.flexDirection = 'column';
+         empezar.style.display = 'none';
+         go.style.display = 'block';
+         cantidadJugadores.textContent = `Jugadores: ${numeroJugadores}`;
+
+         // Iniciar cuenta atrás al hacer clic en "Empezar"
+      });
+
+      let go = document.getElementById('go');
+      let cantidadJugadores = document.getElementById('cantidadJugadores');
+      go.addEventListener('click', () => {
+         iniciarCuentaAtras();
+         go.style.display = 'none';
+         cantidadJugadores.style.display = 'none';
+
+      });
+
+      class Coche {
+         constructor(icono) {
+            this.icono = icono;
+            this.posicion = 100; // Posición inicial en la pista
+            this.chocado = false; // Estado de choque
+         }
+
+         mover(arboles) {
+            if (this.chocado) {
+               this.chocado = false; // Si estaba chocado, se recupera y no se mueve este turno
+            } else {
+               let avance = Math.floor(Math.random() * 3) + 1;
+               let nuevaPosicion = this.posicion - avance;
+               if (nuevaPosicion <= 0) {
+                  this.posicion = 0;
+               } else {
+                  if (arboles.includes(nuevaPosicion)) {
+                     this.chocado = true; // Cambia el estado de chocado
+                     this.posicion = nuevaPosicion; // Mueve al coche a la posición del árbol y muestra el choque
+                  } else {
+                     this.posicion = nuevaPosicion;
+                  }
+               }
+            }
+         }
+      }
+
+      let cuentaAtras = document.getElementById('cuentaAtras');
+      let segundos = 3;
+
+      let iniciarCuentaAtras = () => {
+         cuentaAtras.textContent = segundos;
+         let intervaloCuentaAtras = setInterval(() => {
+            segundos--;
+            cuentaAtras.textContent = segundos;
+            if (segundos < 0) {
+               cuentaAtras.textContent = '';
+               clearInterval(intervaloCuentaAtras);
+               go.style.display = 'block';
+               juego();
+            }
+         }, 1000);
+      };
+
+      let generarArboles = (coche) => {
+         let cantidadArboles = Math.floor(Math.random() * 10) + 1;
+         let arboles = new Set();
+         while (arboles.size < cantidadArboles) {
+            let posicionArbol = Math.floor(Math.random() * (coche.posicion - 1)) + 1;
+            arboles.add(posicionArbol);
+         }
+         return Array.from(arboles);
+      };
+
+      let imprimirPista = (arboles, coche) => {
+         let pista = ["🏁"];
+         for (let i = 1; i <= coche.posicion; i++) {
+            if (i === coche.posicion) {
+               if (arboles.includes(i) && coche.chocado) {
+                  pista.push("💥");
+               } else {
+                  pista.push(coche.icono);
+               }
+            } else if (arboles.includes(i)) {
+               pista.push("🌲");
+            } else {
+               pista.push(" - ");
+            }
+         }
+         return pista.join("");
+      };
+
+      let juego = () => {
+         go.style.display = 'none';
+         raceTrack.style.display = 'flex';
+         let coches = ["🚙", "🚗", "🚕", "🚛", "🚚", "🚓", "🚜", "🚒", "🚐", "🚘"];
+
+         // Crear coches según el número de jugadores
+         let cochesJugadores = coches.slice(0, numeroJugadores);
+
+         // Limpiar la parrilla antes de mostrar los coches
+         raceTrack.innerHTML = '';
+
+         // Crear objetos Coche y generar árboles para cada uno
+         let cochesObjetos = [];
+         let arbolesPorCoche = [];
+         for (let i = 0; i < cochesJugadores.length; i++) {
+            let coche = new Coche(cochesJugadores[i]);
+            let arboles = generarArboles(coche);
+            cochesObjetos.push(coche);
+            arbolesPorCoche.push(arboles);
+         }
+
+         // Intervalo de tiempo para el movimiento de los coches
+         let intervalo = setInterval(() => {
+            // Mover cada coche y verificar colisiones
+            for (let i = 0; i < cochesObjetos.length; i++) {
+               cochesObjetos[i].mover(arbolesPorCoche[i]);
+            }
+
+
+            raceTrack.innerHTML = '';
+            for (let i = 0; i < cochesObjetos.length; i++) {
+               let pista = imprimirPista(arbolesPorCoche[i], cochesObjetos[i]);
+               let carElement = document.createElement('div');
+               carElement.classList.add('car');
+               carElement.textContent = pista;
+               raceTrack.appendChild(carElement);
+            }
+
+
+            let carreraTerminada = false;
+            for (let i = 0; i < cochesObjetos.length; i++) {
+               if (cochesObjetos[i].posicion <= 0) {
+                  carreraTerminada = true;
+                  clearInterval(intervalo);
+                  alert(`🏁 ¡Ha finalizado la carrera! 🏁\n🏆 ¡El coche ${i + 1} ha ganado! 🏆`);
+                  break;
+               }
+            }
+
+
+            if (carreraTerminada) {
+               clearInterval(intervalo);
+               setTimeout(() => {
+                  window.location.reload();
+               }, 1000);
+            }
+         }, 200);
+      };
+   </script>
+</body>
+
+</html>
