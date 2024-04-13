@@ -21,7 +21,7 @@
          flex-direction: row;
          color: #4d4d4d;
          background-color: #4d4d4d;
-
+         justify-content: center;
          display: none;
          border-top: solid 2px white;
          border-bottom: solid 2px white;
@@ -30,6 +30,7 @@
       .car {
          font-size: 24px;
          margin-bottom: 10px;
+         border-top: solid 2px white;
       }
 
       #menu {
@@ -74,12 +75,19 @@
          margin-bottom: 10px;
          color: white;
       }
+
+      #parrilla {
+         font-size: 24px;
+         margin-bottom: 10px;
+         color: white;
+      }
    </style>
 </head>
 
 <body>
    <div id="menu">
       <h1 id="jugadoresTitle">Elige el número de jugadores</h1>
+      <div id="parrilla"></div> <!-- Parrilla de salida -->
       <h1 id="cuentaAtras"></h1>
       <select name="jugadores" id="jugadores">
          <option value="1">1</option>
@@ -101,6 +109,7 @@
    </div>
 
    <script>
+      let coches = ["🚙", "🚗", "🚕", "🚛", "🚚", "🚓", "🚜", "🚒", "🚐", "🚘"];
       let jugadores = document.getElementById('jugadores');
       let raceTrack = document.getElementById('raceTrack');
       let numeroJugadores = jugadores.value;
@@ -115,7 +124,14 @@
          go.style.display = 'block';
          cantidadJugadores.textContent = `Jugadores: ${numeroJugadores}`;
 
-         // Iniciar cuenta atrás al hacer clic en "Empezar"
+         // Mostrar parrilla de salida
+         let parrilla = document.getElementById('parrilla');
+         parrilla.innerHTML = '';
+         for (let i = 0; i < numeroJugadores; i++) {
+            let coche = document.createElement('div');
+            coche.textContent = `${i + 1}. ${coches[i]}`;
+            parrilla.appendChild(coche);
+         }
       });
 
       let go = document.getElementById('go');
@@ -124,7 +140,7 @@
          iniciarCuentaAtras();
          go.style.display = 'none';
          cantidadJugadores.style.display = 'none';
-
+         parrilla.style.display = 'none';
       });
 
       class Coche {
@@ -202,7 +218,6 @@
       let juego = () => {
          go.style.display = 'none';
          raceTrack.style.display = 'flex';
-         let coches = ["🚙", "🚗", "🚕", "🚛", "🚚", "🚓", "🚜", "🚒", "🚐", "🚘"];
 
          // Crear coches según el número de jugadores
          let cochesJugadores = coches.slice(0, numeroJugadores);
